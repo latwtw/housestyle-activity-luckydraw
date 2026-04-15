@@ -3,155 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>好時代衛浴 幸運轉盤 - 精準對位版</title>
+    <title>好時代衛浴 春日換新優惠季幸運轉盤 - 滿額30000即可抽獎一次</title>
     <style>
         body {
             font-family: "Microsoft JhengHei", sans-serif;
             background-color: #D86A75;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
         }
+
         .card {
-            background: white; padding: 30px; border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
-            width: 90%; max-width: 450px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
         }
-        .title-line1 { color: #ff6600; font-size: 28px; font-weight: bold; display: block; }
-        .title-line2 { color: #ff6600; font-size: 28px; font-weight: bold; margin-top: 5px; display: block; }
-        
+
+        /* 標題樣式調整 */
+        .title-line1 {
+            color: #ff6600;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+            display: block;
+        }
+        .title-line2 {
+            color: #ff6600;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 5px 0 0 0;
+            display: block;
+        }
+        .subtitle { color: #666; margin: 10px 0 30px; font-size: 16px; }
+
         .wheel-container {
-            position: relative; width: 320px; height: 320px; margin: 20px auto;
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 30px;
         }
-        /* 增加平滑動畫效果 */
-        #wheel { 
-            width: 100%; height: 100%; border-radius: 50%; 
-            transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); 
+
+        /* 畫布 */
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            transform: rotate(-90deg); /* 讓第一個獎項從正上方開始計算 */
         }
-        
-        /* 指針：固定在正上方 */
+
+        /* 水滴形指針 */
         .pointer-box {
-            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
-            width: 40px; height: 40px; z-index: 10;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(180deg); 
+            width: 50px;
+            height: 50px;
+            z-index: 10;
         }
-        .pointer-svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3)); }
+
+        .pointer-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
 
         button {
-            background: #ff6600; color: white; border: none; padding: 12px 60px;
-            font-size: 20px; font-weight: bold; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 12px 60px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
         }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        
-        .inventory-list {
-            margin-top: 20px; font-size: 13px; color: #555; text-align: left;
-            background: #f9f9f9; padding: 10px; border-radius: 10px;
+
+        button:hover { background: #e65c00; transform: scale(1.05); }
+        button:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            min-height: 24px;
         }
-        .reset-btn { margin-top: 10px; font-size: 11px; color: #bbb; cursor: pointer; }
+        .test-mode {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
 
 <div class="card">
     <span class="title-line1">好時代衛浴</span>
-    <span class="title-line2">🎡春日換新幸運轉盤🎡</span>
+    <span class="title-line2">🎡春日換新優惠季幸運轉盤🎡</span>
+    <p class="subtitle">單筆消費滿 $8,888 即可啟動幸運輪盤</p>
 
     <div class="wheel-container">
         <div class="pointer-box">
             <svg class="pointer-svg" viewBox="0 0 100 100">
-                <path d="M50 100 L20 40 A35 35 0 1 1 80 40 Z" fill="#3b5998" stroke="#fff" stroke-width="3"/>
+                <path d="M50 0 C30 0 15 25 15 45 C15 70 50 100 50 100 C50 100 85 70 85 45 C85 25 70 0 50 0 Z" fill="#3b5998" stroke="#ffd700" stroke-width="4"/>
+                <circle cx="50" cy="40" r="12" fill="#ffd700"/>
             </svg>
         </div>
         <canvas id="wheel" width="600" height="600"></canvas>
     </div>
 
     <button id="spinBtn">開始抽獎</button>
-    <div id="result" style="margin-top:15px; font-weight:bold; color:#d32f2f; min-height:24px;"></div>
-    
-    <div class="inventory-list" id="inventory"></div>
-    <div class="reset-btn" onclick="resetInventory()">重置所有數據 (測試用)</div>
+    <div id="result"></div>
+    <p class="test-mode">⚠️ 目前為測試模式：重新整理網頁即可再次抽獎</p>
 </div>
 
 <script>
+    // 測試模式下自動清除紀錄
+    localStorage.removeItem('myResult');
+
     const canvas = document.getElementById('wheel');
     const ctx = canvas.getContext('2d');
     const spinBtn = document.getElementById('spinBtn');
     const resultDiv = document.getElementById('result');
-    const inventoryDiv = document.getElementById('inventory');
 
-    const defaultPrizes = [
-        { name: 'A賞: GROHE 洗臉機', count: 12, color: '#EDB4B1' },
-        { name: 'B賞: GROHE 馬克杯或水壺', count: 14, color: '#748BAC' },
-        { name: 'C賞: GROHE 香皂', count: 21, color: '#64738E' },
-        { name: 'D賞: LAUFEN 帆布袋', count: 32, color: '#96A9C0' },
-        { name: 'E賞: GROHE 龍頭棉布', count: 40, color: '#AEBDC6' }
+    // 1. 設定獎項、顏色與機率 (Weight)
+    const prizes = [
+        { name: 'A賞: 恭喜獲得 GROHE 洗臉機', weight: 12, color: '#EDB4B1' },
+        { name: 'B賞: 恭喜獲得 GROHE 馬克杯或水壺', weight: 14, color: '#748BAC' },
+        { name: 'C賞: 恭喜獲得 GROHE 香皂', weight: 21, color: '#64738E' },
+        { name: 'D賞: 恭喜獲得 LAUFEN 帆布袋', weight: 32, color: '#96A9C0' },
+        { name: 'E賞: 恭喜獲得 GROHE 棉質擦拭布', weight: 40, color: '#AEBDC6' }
     ];
 
-    let prizes = JSON.parse(localStorage.getItem('wheel_inventory_v2')) || defaultPrizes;
+    const totalWeight = prizes.reduce((sum, p) => sum + p.weight, 0);
     let isSpinning = false;
-    let currentDeg = 0; 
 
-    function saveInventory() {
-        localStorage.setItem('wheel_inventory_v2', JSON.stringify(prizes));
+    // 檢查是否抽過
+    const savedPrize = localStorage.getItem('myResult');
+    if (savedPrize) {
+        spinBtn.disabled = true;
+        resultDiv.innerHTML = `您已參加過抽獎，獲得：<span style="color:#ff6600">${savedPrize}</span>`;
     }
 
-    function resetInventory() {
-        if(confirm("確定要重置庫存嗎？")) {
-            localStorage.removeItem('wheel_inventory_v2');
-            location.reload();
-        }
-    }
-
-    // 繪製轉盤：讓第一個獎項的中心點正對指針
+    // 2. 繪製轉盤函數
     function drawWheel() {
-        const num = prizes.length;
-        const arc = (Math.PI * 2) / num;
-        ctx.clearRect(0, 0, 600, 600);
-        
+        const numPrizes = prizes.length;
+        const arc = (Math.PI * 2) / numPrizes;
+
         prizes.forEach((p, i) => {
             const angle = i * arc;
+            
+            // 畫扇形
             ctx.beginPath();
-            ctx.fillStyle = p.count > 0 ? p.color : '#eee';
+            ctx.fillStyle = p.color;
             ctx.moveTo(300, 300);
-            // 關鍵點：起始角度減去 Math.PI/2 (90度) 再減去半個扇形角度，讓第一個扇形的中間對準 12 點鐘
-            ctx.arc(300, 300, 300, angle - Math.PI/2 - arc/2, angle + arc - Math.PI/2 - arc/2);
+            ctx.arc(300, 300, 300, angle, angle + arc);
             ctx.fill();
-            ctx.strokeStyle = "#fff";
+            ctx.strokeStyle = "#ddd";
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // 繪製文字
+            // 畫文字
             ctx.save();
             ctx.translate(300, 300);
-            ctx.rotate(angle - Math.PI/2);
+            ctx.rotate(angle + arc / 2);
             ctx.textAlign = "right";
-            ctx.fillStyle = p.count > 0 ? "#fff" : "#bbb";
-            ctx.font = "bold 34px Microsoft JhengHei";
-            ctx.fillText(p.name.split(':')[0], 260, 12);
+            ctx.fillStyle = (p.color === '#ffffff') ? '#ff6600' : '#ffffff';
+            ctx.font = "bold 40px Microsoft JhengHei";
+            ctx.fillText(p.name.split(':')[0], 250, 15); // 顯示 A賞, B賞...
             ctx.restore();
         });
     }
 
-    function updateUI() {
-        let html = "<strong>剩餘獎項數量：</strong><br>";
-        prizes.forEach(p => {
-            html += `${p.name}：${p.count} <br>`;
-        });
-        inventoryDiv.innerHTML = html;
-        drawWheel();
-    }
-
-    function getWinnerIndex() {
-        const total = prizes.reduce((sum, p) => sum + p.count, 0);
-        if (total === 0) return -1;
-        let random = Math.random() * total;
+    // 3. 根據機率計算結果
+    function getWeightedResult() {
+        let random = Math.random() * totalWeight;
         for (let i = 0; i < prizes.length; i++) {
-            if (random < prizes[i].count) return i;
-            random -= prizes[i].count;
+            if (random < prizes[i].weight) return i;
+            random -= prizes[i].weight;
         }
-        return 0;
+        return prizes.length - 1;
     }
 
+    // 4. 抽獎動作
     spinBtn.onclick = () => {
-        if (isSpinning) return;
+        if (isSpinning || localStorage.getItem('myResult')) return;
 
-        const winnerIndex = get
+        isSpinning = true;
+        spinBtn.disabled = true;
+        
+        const prizeIndex = getWeightedResult();
+        const segmentDeg = 360 / prizes.length;
+        
+        // 計算旋轉度數 (至少轉5圈 + 抽中獎項的角度)
+        // 減去 segmentDeg/2 是為了讓指針停在扇形正中間
+        const rotation = 3600 + (360 - (prizeIndex * segmentDeg)) - (segmentDeg / 2);
+
+        canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
+        canvas.style.transform = `rotate(${rotation - 90}deg)`; // -90度是修正初始繪製偏移
+
+        setTimeout(() => {
+            const winner = prizes[prizeIndex].name;
+            resultDiv.innerHTML = `🎉 恭喜中獎：<span style="color:#ff6600">${winner}</span>`;
+            localStorage.setItem('myResult', winner);
+            alert(`恭喜您抽中：${winner}！\n請截圖告知店員。`);
+            isSpinning = false;
+        }, 5200);
+    };
+
+    drawWheel();
+</script>
+
+</body>
+</html>
