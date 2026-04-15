@@ -3,86 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>好時代衛浴 幸運轉盤 - 限量版</title>
+    <title>好時代衛浴 幸運轉盤 - 庫存記憶版</title>
     <style>
         body {
             font-family: "Microsoft JhengHei", sans-serif;
             background-color: #D86A75;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; margin: 0;
         }
-
         .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center;
+            width: 90%; max-width: 450px;
         }
-
         .title-line1 { color: #ff6600; font-size: 28px; font-weight: bold; display: block; }
         .title-line2 { color: #ff6600; font-size: 28px; font-weight: bold; margin-top: 5px; display: block; }
-        .subtitle { color: #666; margin: 10px 0 20px; font-size: 16px; }
-
+        
         .wheel-container {
-            position: relative;
-            width: 320px;
-            height: 320px;
-            margin: 0 auto 30px;
+            position: relative; width: 320px; height: 320px; margin: 20px auto;
         }
-
-        #wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            transform: rotate(-90deg);
-        }
-
+        #wheel { width: 100%; height: 100%; border-radius: 50%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); }
+        
+        /* 指針修正：固定在正上方 */
         .pointer-box {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(180deg); 
-            width: 50px;
-            height: 50px;
-            z-index: 10;
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 40px; z-index: 10;
         }
-
-        .pointer-svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2)); }
+        .pointer-svg { width: 100%; height: 100%; }
 
         button {
-            background: #ff6600;
-            color: white;
-            border: none;
-            padding: 12px 60px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 102, 0, 0.3);
+            background: #ff6600; color: white; border: none; padding: 12px 60px;
+            font-size: 20px; font-weight: bold; border-radius: 50px; cursor: pointer;
         }
-
-        button:hover { background: #e65c00; transform: scale(1.05); }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-
-        #result { margin-top: 20px; font-size: 18px; font-weight: bold; color: #333; min-height: 24px; }
+        button:disabled { background: #ccc; }
         
-        /* 顯示剩餘數量的小看板 */
         .inventory-list {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #777;
-            text-align: left;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+            margin-top: 20px; font-size: 13px; color: #555; text-align: left;
+            background: #f9f9f9; padding: 10px; border-radius: 10px;
         }
+        .reset-btn { margin-top: 10px; font-size: 11px; color: #999; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -90,23 +49,21 @@
 <div class="card">
     <span class="title-line1">好時代衛浴</span>
     <span class="title-line2">🎡限量幸運轉盤🎡</span>
-    <p class="subtitle">單筆消費滿額即可參加</p>
 
     <div class="wheel-container">
         <div class="pointer-box">
             <svg class="pointer-svg" viewBox="0 0 100 100">
-                <path d="M50 0 C30 0 15 25 15 45 C15 70 50 100 50 100 C50 100 85 70 85 45 C85 25 70 0 50 0 Z" fill="#3b5998" stroke="#ffd700" stroke-width="4"/>
-                <circle cx="50" cy="40" r="12" fill="#ffd700"/>
+                <path d="M50 100 L20 40 A35 35 0 1 1 80 40 Z" fill="#3b5998" stroke="#fff" stroke-width="3"/>
             </svg>
         </div>
         <canvas id="wheel" width="600" height="600"></canvas>
     </div>
 
     <button id="spinBtn">開始抽獎</button>
-    <div id="result"></div>
+    <div id="result" style="margin-top:15px; font-weight:bold; color:#d32f2f; min-height:24px;"></div>
     
-    <div class="inventory-list" id="inventory">
-        </div>
+    <div class="inventory-list" id="inventory"></div>
+    <div class="reset-btn" onclick="resetInventory()">重置庫存測試(管理員用)</div>
 </div>
 
 <script>
@@ -116,123 +73,119 @@
     const resultDiv = document.getElementById('result');
     const inventoryDiv = document.getElementById('inventory');
 
-    // 1. 設定獎項與初始數量 (count)
-    // 注意：若要在正式環境使用，這些數據通常應該存放在伺服器端資料庫中
-    let prizes = [
-        { name: 'A賞: GROHE 洗臉機', count: 12, color: '#EDB4B1' },
-        { name: 'B賞: GROHE 馬克杯或水壺', count: 14, color: '#748BAC' },
-        { name: 'C賞: GROHE 香皂', count: 21, color: '#64738E' },
-        { name: 'D賞: LAUFEN 帆布袋', count: 32, color: '#96A9C0' },
-        { name: 'E賞: GROHE 龍頭棉布', count: 40, color: '#AEBDC6' }
+    // 1. 初始獎項設定
+    const defaultPrizes = [
+        { name: 'A賞: 8折優惠', count: 1, color: '#EDB4B1' },
+        { name: 'B賞: 指定配件', count: 5, color: '#748BAC' },
+        { name: 'C賞: GROHE清潔劑', count: 10, color: '#64738E' },
+        { name: 'D賞: 9折優惠', count: 20, color: '#96A9C0' },
+        { name: 'E賞: 衛生紙套', count: 50, color: '#AEBDC6' }
     ];
 
+    // 2. 從 localStorage 讀取庫存，若無則使用預設值
+    let prizes = JSON.parse(localStorage.getItem('wheel_inventory')) || defaultPrizes;
     let isSpinning = false;
-    let currentRotation = 0;
+    let currentDeg = 0; // 紀錄當前角度
 
-    // 更新介面上的數量顯示
-    function updateInventoryUI() {
-        let html = "<strong>剩餘獎項：</strong><br>";
-        prizes.forEach(p => {
-            html += `${p.name}: ${p.count} <br>`;
-        });
-        inventoryDiv.innerHTML = html;
+    function saveInventory() {
+        localStorage.setItem('wheel_inventory', JSON.stringify(prizes));
     }
 
-    // 2. 繪製轉盤
-    function drawWheel() {
-        const numPrizes = prizes.length;
-        const arc = (Math.PI * 2) / numPrizes;
-        ctx.clearRect(0, 0, 600, 600);
+    function resetInventory() {
+        if(confirm("確定要恢復初始數量嗎？")) {
+            localStorage.removeItem('wheel_inventory');
+            location.reload();
+        }
+    }
 
+    function updateUI() {
+        let html = "<strong>目前剩餘獎項：</strong><br>";
+        prizes.forEach(p => {
+            html += `${p.name}：${p.count} <br>`;
+        });
+        inventoryDiv.innerHTML = html;
+        drawWheel();
+    }
+
+    // 3. 繪製轉盤 (讓第一個獎項正對上方)
+    function drawWheel() {
+        const arc = (Math.PI * 2) / prizes.length;
+        ctx.clearRect(0, 0, 600, 600);
+        
         prizes.forEach((p, i) => {
             const angle = i * arc;
-            
             ctx.beginPath();
-            // 如果數量為 0，顏色變灰
             ctx.fillStyle = p.count > 0 ? p.color : '#eee';
             ctx.moveTo(300, 300);
-            ctx.arc(300, 300, 300, angle, angle + arc);
+            // 修正起始角度，讓 i=0 的扇形中心點在上方
+            ctx.arc(300, 300, 300, angle - Math.PI/2 - arc/2, angle + arc - Math.PI/2 - arc/2);
             ctx.fill();
             ctx.strokeStyle = "#fff";
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 4;
             ctx.stroke();
 
             ctx.save();
             ctx.translate(300, 300);
-            ctx.rotate(angle + arc / 2);
+            ctx.rotate(angle - Math.PI/2);
             ctx.textAlign = "right";
             ctx.fillStyle = p.count > 0 ? "#fff" : "#bbb";
-            ctx.font = "bold 32px Microsoft JhengHei";
-            ctx.fillText(p.name.split(':')[0], 250, 10);
+            ctx.font = "bold 30px Microsoft JhengHei";
+            ctx.fillText(p.name.split(':')[0], 260, 10);
             ctx.restore();
         });
     }
 
-    // 3. 根據「剩餘數量」計算結果
-    function getStockBasedResult() {
-        const remainingPrizes = prizes.map((p, index) => ({ ...p, originalIndex: index }))
-                                      .filter(p => p.count > 0);
-        
-        if (remainingPrizes.length === 0) return -1;
-
-        const totalStock = remainingPrizes.reduce((sum, p) => sum + p.count, 0);
-        let random = Math.random() * totalStock;
-
-        for (let i = 0; i < remainingPrizes.length; i++) {
-            if (random < remainingPrizes[i].count) {
-                return remainingPrizes[i].originalIndex;
-            }
-            random -= remainingPrizes[i].count;
+    // 4. 機率邏輯：依照剩餘數量加權
+    function getWinnerIndex() {
+        const total = prizes.reduce((sum, p) => sum + p.count, 0);
+        if (total === 0) return -1;
+        let random = Math.random() * total;
+        for (let i = 0; i < prizes.length; i++) {
+            if (random < prizes[i].count) return i;
+            random -= prizes[i].count;
         }
-        return remainingPrizes[remainingPrizes.length - 1].originalIndex;
+        return 0;
     }
 
-    // 4. 執行抽獎
     spinBtn.onclick = () => {
         if (isSpinning) return;
 
-        const prizeIndex = getStockBasedResult();
-        
-        if (prizeIndex === -1) {
-            alert("所有獎項已抽完，感謝參與！");
+        const winnerIndex = getWinnerIndex();
+        if (winnerIndex === -1) {
+            alert("所有獎項已抽完！");
             return;
         }
 
         isSpinning = true;
         spinBtn.disabled = true;
-        resultDiv.innerHTML = "旋轉中...";
-        
-        const segmentDeg = 360 / prizes.length;
-        // 增加旋轉圈數，並計算目標角度
-        const spins = 5; 
-        const targetRotation = (spins * 360) + (360 - (prizeIndex * segmentDeg)) - (segmentDeg / 2);
-        
-        currentRotation += targetRotation; // 累加角度讓下次旋轉順暢
+        resultDiv.innerHTML = "好運降臨中...";
 
-        canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
-        canvas.style.transform = `rotate(${currentRotation - 90}deg)`;
+        // 計算角度：
+        // 1. 旋轉 5~10 圈
+        // 2. 減去 winnerIndex 應佔的角度 (每個區塊 360/5 = 72度)
+        const segmentDeg = 360 / prizes.length;
+        const extraSpins = (Math.floor(Math.random() * 5) + 5) * 360; 
+        const targetDeg = extraSpins + (360 - (winnerIndex * segmentDeg));
+        
+        currentDeg += targetDeg; // 累加角度，防止轉盤倒轉
+        
+        canvas.style.transform = `rotate(${currentDeg}deg)`;
 
         setTimeout(() => {
-            const winner = prizes[prizeIndex];
-            
-            // 關鍵：扣除數量
+            const winner = prizes[winnerIndex];
             winner.count--;
+            saveInventory();
             
-            resultDiv.innerHTML = `🎉 恭喜獲得：<span style="color:#ff6600">${winner.name}</span>`;
-            alert(`恭喜您抽中：${winner.name}！\n庫存已更新。`);
+            resultDiv.innerHTML = `🎉 恭喜中獎：${winner.name}`;
+            alert(`恭喜您抽中：${winner.name}！\n請截圖保留畫面。`);
             
             isSpinning = false;
             spinBtn.disabled = false;
-            
-            // 重新更新介面與轉盤
-            updateInventoryUI();
-            drawWheel(); 
-        }, 5200);
+            updateUI();
+        }, 5100);
     };
 
-    // 初始化
-    drawWheel();
-    updateInventoryUI();
+    updateUI();
 </script>
 
 </body>
